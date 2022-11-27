@@ -137,7 +137,17 @@ function vectorizeDocument(traineeId, doc) {
     const fnodes = boundRuleset.get(type(vectorType));
     time = performance.now() - time;
 
-    const isTarget = trainee.isTarget || (fnode => fnode.element.dataset.fathom === traineeId);
+    /* Support multi-label classification */
+    const isTarget = trainee.isTarget || (fnode => {
+        const targets = fnode.element.dataset.fathom;
+        const targetIds =
+          targets !== undefined
+            ? targets.split(",").map((target) => target.trim())
+            : [];
+            
+        return targetIds.includes(traineeId);
+    });
+
     const perNodeStuff = fnodes.map(function featureVectorForFnode(fnode) {
         const scoreMap = fnode.scoresSoFarFor(vectorType);
         return {
